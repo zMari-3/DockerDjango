@@ -1,0 +1,79 @@
+
+{% extends 'module_project/base.html' %}
+{% load static %}
+
+{% block title %}Добавить режиссёра{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <div class="form-card">
+        <div class="form-header">
+            <h2>👤 Добавить режиссёра</h2>
+            <p>Укажите информацию о режиссёре</p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}">
+                        {% if field.name == 'name' %}
+                             Имя режиссёра
+                        {% elif field.name == 'birth_year' %}
+                             Год рождения
+                        {% elif field.name == 'country' %}
+                             Страна
+                        {% else %}
+                            {{ field.label }}
+                        {% endif %}
+                        {% if field.field.required %}
+                            <span class="required-star">*</span>
+                        {% endif %}
+                    </label>
+                    
+                    {{ field }}
+                    
+                    {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    
+                    {% if field.help_text %}
+                        <span class="form-text">
+                            ℹ{{ field.help_text }}
+                        </span>
+                    {% endif %}
+                    
+                    <!-- Дополнительные пояснения -->
+                    {% if field.name == 'name' %}
+                        <span class="form-text">
+                             Введите полное имя режиссёра
+                        </span>
+                    {% elif field.name == 'birth_year' %}
+                        <span class="form-text">
+                            💡 Укажите год рождения
+                        </span>
+                    {% elif field.name == 'country' %}
+                        <span class="form-text">
+                             Страна происхождения 
+                        </span>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                     Сохранить
+                </button>
+                <a href="{% url 'module_project:producer_list' %}" class="btn btn-secondary">
+                     Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

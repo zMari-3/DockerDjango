@@ -1,0 +1,27 @@
+{% extends 'module_project/base.html' %}
+
+{% block title %}Удаление фильма{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h3>Подтверждение удаления</h3>
+            </div>
+            <div class="card-body">
+                <p>Вы уверены, что хотите удалить фильм:</p>
+                <h4>"{{ film.title }}"</h4>
+                <p>Автор: {{ film.producer.name }}</p>
+                <p>Год: {{ film.publication_year }}</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Да, удалить</button>
+                    <a href="{% url 'module_project:film_detail' film.pk %}" class="btn btn-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

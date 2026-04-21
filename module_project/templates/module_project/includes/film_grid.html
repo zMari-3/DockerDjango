@@ -1,0 +1,36 @@
+{% load static %}
+<div class="film-grid">
+    {% for film in films %}
+        <div class="film-card">
+            <div class="film-poster">
+                {% if film.cover_image %}
+                    <img src="{{ film.cover_image.url }}" alt="{{ film.title }}">
+                {% else %}
+                    <div class="no-poster">
+                        <i class="fas fa-film"></i>
+                        <span>Нет постера</span>
+                    </div>
+                {% endif %}
+                <button class="favorite-btn {% if film.id in favorites %}active{% endif %}" data-film-id="{{ film.id }}">
+                    <i class="{% if film.id in favorites %}fas{% else %}far{% endif %} fa-heart"></i>
+                </button>
+            </div>
+            <div class="film-info">
+                <h3 class="film-title">{{ film.title }}</h3>
+                <p class="film-meta">{{ film.producer.name }} • {{ film.publication_year }}</p>
+                <div class="film-rating">
+                    <span class="rating-value"><i class="fas fa-star"></i> {{ film.rating }}</span>
+                    <span class="age-limit">{{ film.age_limit }}+</span>
+                </div>
+                <a href="{% url 'module_project:film_detail' film.pk %}" class="btn btn-outline btn-sm">Подробнее</a>
+            </div>
+        </div>
+    {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-film"></i>
+            <h3>Фильмы не найдены</h3>
+            <p>Попробуйте изменить параметры поиска</p>
+            <a href="{% url 'module_project:film_create' %}" class="btn btn-primary">Добавить фильм</a>
+        </div>
+    {% endfor %}
+</div>

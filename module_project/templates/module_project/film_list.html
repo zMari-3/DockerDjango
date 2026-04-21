@@ -1,0 +1,86 @@
+{% extends 'module_project/base.html' %}
+
+{% block title %}Список книг{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Каталог фильмов</h1>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Поиск и фильтрация</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            {{ form.query.label_tag }}
+                            {{ form.query }}
+                        </div>
+                        <div class="col-md-3">
+                            {{ form.producer.label_tag }}
+                            {{ form.producer }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.year_from.label_tag }}
+                            {{ form.year_from }}
+                        </div>
+                        <div class="col-md-2">
+                            {{ form.year_to.label_tag }}
+                            {{ form.year_to }}
+                        </div>
+                        
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Применить фильтры</button>
+                            <a href="{% url 'module_project:film_list' %}" class="btn btn-secondary">Сбросить</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for film in films %}
+                    <div class="col">
+                        <div class="card h-100">
+                            {% if book.cover_image %}
+                                <img src="{{ film.cover_image.url }}" 
+                                     class="card-img-top" 
+                                     alt="{{ film.title }}"
+                                     style="height: 200px; object-fit: contain; width: 100%;">
+                            {% else %}
+                               {% load static %}
+                              <img src="{% static 'icons/film.jpg' %}" 
+                                     class="card-img-top" 
+                                     alt="{{ film.title }}"
+                                     style="height: 200px; object-fit: contain; width: 100%;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ film.title }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ film.producer.name }}</h6>
+                                <p class="card-text">
+                                    <strong>Год:</strong> {{ film.publication_year }}<br>
+                                    <strong>Рейтинг:</strong> {{ film.rating }}<br>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'module_project:film_detail' film.pk %}" class="btn btn-info btn-sm flex-fill">Подробнее</a>
+                                    <a href="{% url 'module_project:film_update' film.pk %}" class="btn btn-warning btn-sm flex-fill">Редактировать</a>
+                                    <a href="{% url 'module_project:film_delete' film.pk %}" class="btn btn-danger btn-sm flex-fill">Удалить</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <p class="text-center">Фильмы не найдены</p>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <p class="text-muted mt-3">Всего найдено: {{ films|length }} книг</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

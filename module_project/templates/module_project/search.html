@@ -1,0 +1,64 @@
+{% extends 'module_project/base.html' %}
+{% load static %}
+
+{% block title %}Поиск фильмов{% endblock %}
+
+{% block content %}
+<div class="search-hero">
+    <h1> Поиск фильмов</h1>
+    <div class="search-box">
+        <form id="filter-form" method="get">
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label for="search-query">
+                         {{ form.query.label }}
+                    </label>
+                    {{ form.query }}
+                </div>
+                <div class="filter-item">
+                    <label for="year">
+                         {{ form.year.label }}
+                    </label>
+                    {{ form.year }}
+                </div>
+                <div class="filter-item">
+                    <label for="rating-min">
+                         {{ form.rating_min.label }}
+                    </label>
+                    {{ form.rating_min }}
+                </div>
+                <div class="filter-item">
+                    <label for="age-limit">
+                         {{ form.age_limit.label }}
+                    </label>
+                    {{ form.age_limit }}
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">
+                     Найти
+                </button>
+                <button type="button" id="reset-filters" class="btn btn-secondary">
+                    Сбросить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="results-header">
+    <h2>Результаты поиска <span id="results-count">({{ films|length }})</span></h2>
+</div>
+
+<div id="films-grid-container">
+    {% include 'module_project/includes/film_grid.html' with films=films %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setupFilmSearch();
+    });
+</script>
+{% endblock %}

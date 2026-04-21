@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <title>Кинобиблиотека | {% block title %}Главная{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a class="navbar-brand" href="{% url 'module_project:home' %}">🎬 Кинобиблиотека</a>
+            
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li><a class="nav-link" href="{% url 'module_project:home' %}">Главная</a></li>
+                    <li><a class="nav-link" href="{% url 'module_project:search' %}">Поиск</a></li>
+                    <li><a class="nav-link" href="{% url 'module_project:producer_list' %}">Режиссёры</a></li>
+                    <li><a class="nav-link" href="{% url 'module_project:film_create' %}"><i class="fas fa-plus"></i> Добавить</a></li>
+                     <li>
+                        <a class="nav-link" href="#" id="random-film-btn">
+                             Рандомный фильм
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link favorite-link" href="#" id="show-favorites-btn">
+                            <i class="far fa-heart"></i> 
+                            <span id="favorite-counter">{% if user.is_authenticated %}{{ user.favorite_set.count }}{% else %}0{% endif %}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- окно избранного -->
+    <div class="modal-overlay" id="favorites-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2><i class="fas fa-heart"></i> Избранные фильмы</h2>
+                <button class="modal-close" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body" id="favorites-modal-content">
+                <div class="loader-spinner">Загрузка...</div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main-content">
+        <div class="container">
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">
+                            {{ message }}
+                            <button type="button" class="alert-close">&times;</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Модальное окно с колесом фортуны -->
+    <div class="modal-overlay" id="wheel-modal" style="display: none;">
+        <div class="wheel-modal-container">
+            <div class="modal-header">
+                <h2>
+                    Колесо фортуны
+                </h2>
+                <button class="modal-close" id="close-wheel-modal">&times;</button>
+            </div>
+            <div class="wheel-modal-body">
+                <div class="deal-wheel" id="film-wheel">
+                    <ul class="wheel-spinner" id="wheel-spinner"></ul>
+                    <div class="ticker"></div>
+                    <button class="btn-spin" id="spin-wheel-btn"> Крутить</button>
+                </div>
+                <div class="wheel-result" id="wheel-result" style="display: none;">
+                    <h3>
+                        Вам выпал фильм:
+                    </h3>
+                    <div id="selected-film-info"></div>
+                    <a href="#" class="btn btn-primary" id="watch-selected-film">
+                        <i class="fas fa-play"></i> Смотреть
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>© 2026 Кинопоиск</p>
+        </div>
+    </footer>
+
+    <div id="global-loader" class="loader-overlay" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!-- templates/module_project/includes/favorites_modal_content.html -->
+{% load static %}
+
+{% if films %}
+    <div class="favorites-grid">
+        {% for film in films %}
+            <div class="favorite-item" data-film-id="{{ film.id }}">
+                <div class="favorite-poster">
+                    {% if film.cover_image %}
+                        <img src="{{ film.cover_image.url }}" alt="{{ film.title }}">
+                    {% else %}
+                        <div class="no-poster-small">
+                            <i class="fas fa-film"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="favorite-info">
+                    <h4>{{ film.title }}</h4>
+                    <p class="favorite-meta">{{ film.producer.name }} • {{ film.publication_year }}</p>
+                    <div class="favorite-rating">
+                        <span><i class="fas fa-star"></i> {{ film.rating }}</span>
+                    </div>
+                </div>
+                <div class="favorite-actions">
+                    <a href="{% url 'module_project:film_detail' film.pk %}" class="btn-icon" title="Подробнее">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
+                    <button class="btn-icon remove-favorite" data-film-id="{{ film.id }}" title="Удалить из избранного">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-favorites">
+        <i class="far fa-heart"></i>
+        <h3>У вас пока нет избранных фильмов</h3>
+        <p>Добавляйте фильмы в избранное, нажимая на сердечко</p>
+        <a href="{% url 'module_project:home' %}" class="btn btn-primary">Найти фильмы</a>
+    </div>
+{% endif %}

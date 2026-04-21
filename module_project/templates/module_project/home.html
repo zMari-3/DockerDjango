@@ -1,0 +1,21 @@
+{% extends 'module_project/base.html' %}
+{% load static %}
+
+{% block title %}Все фильмы{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Все фильмы</h1>
+    <p class="page-subtitle">{{ total_films }} фильмов в библиотеке</p>
+</div>
+
+<div id="films-grid-container">
+    {% include 'module_project/includes/film_grid.html' with films=films %}
+</div>
+
+{% if films.has_next %}
+<div class="load-more-container">
+    <button id="load-more" class="btn btn-outline">Загрузить ещё</button>
+</div>
+{% endif %}
+{% endblock %}

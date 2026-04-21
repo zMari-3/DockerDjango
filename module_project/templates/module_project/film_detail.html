@@ -1,0 +1,208 @@
+{% extends 'module_project/base.html' %}
+{% load static %}
+
+{% block title %}{{ film.title }}{% endblock %}
+
+{% block content %}
+<div class="film-detail">
+    <div class="film-detail-header">
+        <div class="film-detail-poster">
+            {% if film.cover_image %}
+                <img src="{{ film.cover_image.url }}" alt="{{ film.title }}">
+            {% else %}
+                <div class="no-poster">
+                    <i class="fas fa-film"></i>
+                    <span>Нет постера</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="film-detail-info">
+            <h1>{{ film.title }}</h1>
+            
+            <div class="film-detail-meta">
+                <div class="meta-group">
+                    <div class="meta-item">
+                        <span class="meta-label">
+                            Режиссёр
+                        </span>
+                        <span class="meta-value">
+                            <strong>{{ film.producer.name }}</strong>
+                        </span>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <span class="meta-label">
+                             Год выхода
+                        </span>
+                        <span class="meta-value">
+                            <strong>{{ film.publication_year }}</strong>
+                        </span>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <span class="meta-label">
+                             Рейтинг
+                        </span>
+                        <span class="meta-value">
+                            <strong >
+                               {{ film.rating|floatformat:1 }}
+                            </strong>
+                        </span>
+                    </div>
+                    
+                    <div class="meta-item">
+                        <span class="meta-label">
+                            Возрастное ограничение
+                        </span>
+                        <span class="meta-value">
+                            <span class="age-badge-large">{{ film.age_limit }}+</span>
+                        </span>
+                    </div>
+                </div>
+                
+                {% if film.description %}
+                    <div class="film-description">
+                        <h3>
+                             Описание
+                        </h3>
+                        <p>{{ film.description|linebreaks }}</p>
+                    </div>
+                {% endif %}
+                
+                <div class="date-added">
+                    
+                    Добавлено: {{ film.created_at|date:"d.m.Y" }}
+                </div>
+            </div>
+            
+            <div class="film-actions">
+
+                <button class="btn btn-primary trailer-btn" data-film-title="{{ film.title }}">
+                     Смотреть трейлер
+                </button>
+                
+                <button class="favorite-btn-large {% if is_favorite %}active{% endif %}" data-film-id="{{ film.pk }}">
+                    
+                    {% if is_favorite %}В избранном{% else %}В избранное{% endif %}
+                </button>
+                
+                <a href="{% url 'module_project:film_update' film.pk %}" class="btn btn-secondary">
+                     Редактировать
+                </a>
+                
+                <a href="{% url 'module_project:film_delete' film.pk %}" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Удалить
+                </a>
+                
+                <a href="javascript:history.back()" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Назад
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для трейлера -->
+<div class="modal-overlay" id="trailer-modal" style="display: none;">
+    <div class="trailer-modal-container">
+        <div class="modal-header">
+            <h2 id="trailer-title">
+                <i class="fas fa-play-circle"></i> 
+                Трейлер: <span id="film-title-placeholder"></span>
+            </h2>
+            <button class="modal-close" id="close-trailer-modal">&times;</button>
+        </div>
+        <div class="trailer-modal-body">
+            <div class="trailer-container">
+                <iframe 
+                    id="trailer-video"
+                    src="https://vk.com/video_ext.php?oid=-16395362&id=170949635&hd=3&autoplay=1" 
+                    width="100%" 
+                    height="100%" 
+                    allow="autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;" 
+                    frameborder="0" 
+                    allowfullscreen
+                    sandbox="allow-same-origin allow-scripts allow-presentation allow-popups">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function() {
+        console.log(' Инициализация трейлера (inline)');
+        
+        const modal = document.getElementById('trailer-modal');
+        const trailerBtn = document.querySelector('.trailer-btn');
+        const closeBtn = document.getElementById('close-trailer-modal');
+        const filmTitleSpan = document.getElementById('film-title-placeholder');
+        const video = document.getElementById('trailer-video');
+        
+        console.log('modal:', !!modal);
+        console.log('trailerBtn:', !!trailerBtn);
+        console.log('closeBtn:', !!closeBtn);
+        console.log('video:', !!video);
+        
+        if (!modal || !trailerBtn) {
+            console.error(' Элементы трейлера не найдены!');
+            return;
+        }
+        
+        const originalSrc = video ? video.src : '';
+        
+        // Удаляем старые обработчики (если были)
+        const newBtn = trailerBtn.cloneNode(true);
+        trailerBtn.parentNode.replaceChild(newBtn, trailerBtn);
+        
+        newBtn.addEventListener('click', function() {
+            console.log('🎬 Кнопка трейлера нажата!');
+            
+            const filmTitle = this.dataset.filmTitle;
+            if (filmTitleSpan) filmTitleSpan.textContent = filmTitle;
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            if (video && video.tagName === 'IFRAME') {
+                video.src = '';
+                setTimeout(() => { video.src = originalSrc; }, 100);
+            }
+        });
+        
+        function closeModal() {
+            console.log(' Закрываем трейлер');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+            
+            if (video && video.tagName === 'IFRAME') {
+                const src = video.src;
+                video.src = '';
+                setTimeout(() => { video.src = src.replace('autoplay=1', 'autoplay=0'); }, 100);
+            }
+        }
+        
+        const newCloseBtn = closeBtn ? closeBtn.cloneNode(true) : null;
+        if (newCloseBtn && closeBtn) {
+            closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+            newCloseBtn.addEventListener('click', closeModal);
+        }
+        
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeModal();
+        });
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                closeModal();
+            }
+        });
+        
+        console.log(' Обработчики трейлера добавлены');
+    })();
+</script>
+{% endblock %}
