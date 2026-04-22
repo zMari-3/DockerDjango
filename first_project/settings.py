@@ -13,11 +13,12 @@ DEBUG = os.environ.get('DEBUG', '1') == '1'
 
 # ALLOWED_HOSTS - поддержка Railway
 ALLOWED_HOSTS = [
-    'localhost',
+    localhost',
     '127.0.0.1',
     '.railway.app',
     '.up.railway.app',
-    '127.0.0.1:8000',
+    'dockerdjango-production-397c.up.railway.app', 
+    '*',  
 ]
 
 if DEBUG:
