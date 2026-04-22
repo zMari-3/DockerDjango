@@ -1,6 +1,3 @@
-"""
-Django settings for first_project project.
-"""
 
 from pathlib import Path
 import os
@@ -13,7 +10,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure--s6!q77vj2y=g*7%%gtgrmf&24ey#$#721=2o5-x@#(tk%z@@(')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', '1') == '1'
+DEBUG = True
+
+
 
 # ALLOWED_HOSTS - поддержка Railway
 ALLOWED_HOSTS = [
@@ -129,19 +128,20 @@ if not data_dir.exists():
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Настройки безопасности для продакшена
-if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-    X_FRAME_OPTIONS = 'DENY'
+
+#if not DEBUG:
+ #   SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+ #   SECURE_SSL_REDIRECT = True
+  #  SESSION_COOKIE_SECURE = True
+  #  CSRF_COOKIE_SECURE = True
+  #  SECURE_HSTS_SECONDS = 31536000
+  #  SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+  #  SECURE_HSTS_PRELOAD = True
+  #  SECURE_BROWSER_XSS_FILTER = True
+  #  SECURE_CONTENT_TYPE_NOSNIFF = True
+   # X_FRAME_OPTIONS = 'DENY'
     
-    CSRF_TRUSTED_ORIGINS = [
-        'https://*.railway.app',
-        'https://*.up.railway.app',
-    ]
+   # CSRF_TRUSTED_ORIGINS = [
+   #     'https://*.railway.app',
+   #     'https://*.up.railway.app',
+   # ]
