@@ -2,6 +2,7 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
 
 WORKDIR /app
 
@@ -17,12 +18,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Копирование проекта
 COPY . .
 
-# Создаём папки и собираем статику
-RUN mkdir -p /app/staticfiles /app/media /app/data && \
-    DJANGO_SECRET_KEY=build-dummy-key python manage.py collectstatic --noinput
+# Создание необходимых папок
+RUN mkdir -p /app/staticfiles /app/media /app/data
 
-# Открываем порт
-EXPOSE 8000
+# Сбор статических файлов
+RUN python manage.py collectstatic --noinput
 
-# Команда запуска через gunicorn
-CMD ["sh", "-c", "python manage.py migrate && gunicorn first_project.wsgi:application --bind 0.0.0.0:8000"]
+# Открываем порт (Railway использует переменную PORT)
+EXPOSE $PORT
+
+# Запуск приложения
+CMD ["sh", "-c", "python manage.py migrate && gunicorn first_project.wsgi:application --bind 0.0.0.0:$PORT"]

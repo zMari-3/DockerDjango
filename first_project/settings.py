@@ -1,9 +1,6 @@
-"""
-Django settings for first_project project.
-"""
-
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -14,7 +11,16 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure--s6!q77vj2y=g*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', '1') == '1'
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost 127.0.0.1').split(' ')
+# ALLOWED_HOSTS - поддержка Railway
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.railway.app',
+    '.up.railway.app',
+]
+
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -25,6 +31,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'module_project',
+    # Cloudinary для медиа-файлов
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -58,17 +67,26 @@ TEMPLATES = [
 WSGI_APPLICATION = 'first_project.wsgi.application'
 
 # Database
-# SQLite с хранением в папке data (для Docker volume)
-data_dir = BASE_DIR / 'data'
-if not data_dir.exists():
-    data_dir.mkdir(parents=True)
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': data_dir / 'db.sqlite3',
+# Поддержка PostgreSQL на Railway (автоматически), иначе SQLite
+if os.environ.get('DATABASE_URL'):
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    # SQLite с хранением в папке data (для Docker volume)
+    data_dir = BASE_DIR / 'data'
+    if not data_dir.exists():
+        data_dir.mkdir(parents=True)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': data_dir / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -79,8 +97,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+LANGUAGE_CODE = 'ru-ru'
+TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
@@ -96,9 +114,19 @@ STORAGES = {
     },
 }
 
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# Media files - Cloudinary для продакшена
+if not DEBUG and os.environ.get('CLOUDINARY_CLOUD_NAME'):
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Создаём папку media если её нет
 media_dir = BASE_DIR / 'media'
@@ -109,7 +137,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Настройки безопасности для продакшена
 if not DEBUG:
-    # HTTPS настройки (Render предоставляет HTTPS автоматически)
+    # HTTPS настройки
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -125,8 +153,8 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     
-    # CSRF trusted origins для Render
+    # CSRF trusted origins для Railway
     CSRF_TRUSTED_ORIGINS = [
-        'https://*.onrender.com',
-        'https://*.your-domain.com',
+        'https://*.railway.app',
+        'https://*.up.railway.app',
     ]
