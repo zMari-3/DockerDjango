@@ -1,3 +1,6 @@
+"""
+Django settings for first_project project.
+"""
 
 from pathlib import Path
 import os
@@ -10,14 +13,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure--s6!q77vj2y=g*7%%gtgrmf&24ey#$#721=2o5-x@#(tk%z@@(')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-
+DEBUG = os.environ.get('DEBUG', '1') == '1'
 
 # ALLOWED_HOSTS - поддержка Railway
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
+    '0.0.0.0',
     '.railway.app',
     '.up.railway.app',
     'dockerdjango-production-397c.up.railway.app',
@@ -25,6 +27,17 @@ ALLOWED_HOSTS = [
 
 if DEBUG:
     ALLOWED_HOSTS = ['*']
+
+# CSRF Trusted Origins для Railway
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://*.up.railway.app',
+    'https://dockerdjango-production-397c.up.railway.app',
+]
+
+# Дополнительные настройки для работы за прокси
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 INSTALLED_APPS = [
@@ -101,18 +114,19 @@ TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# WhiteNoise для эффективной раздачи статики
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
-# Media files - ЛОКАЛЬНОЕ ХРАНЕНИЕ
+# Media files - локальное хранение
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
@@ -128,20 +142,29 @@ if not data_dir.exists():
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Настройки безопасности для продакшена
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 год
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
 
-#if not DEBUG:
- #   SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
- #   SECURE_SSL_REDIRECT = True
-  #  SESSION_COOKIE_SECURE = True
-  #  CSRF_COOKIE_SECURE = True
-  #  SECURE_HSTS_SECONDS = 31536000
-  #  SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-  #  SECURE_HSTS_PRELOAD = True
-  #  SECURE_BROWSER_XSS_FILTER = True
-  #  SECURE_CONTENT_TYPE_NOSNIFF = True
-   # X_FRAME_OPTIONS = 'DENY'
-    
-   # CSRF_TRUSTED_ORIGINS = [
-   #     'https://*.railway.app',
-   #     'https://*.up.railway.app',
-   # ]
+# Логирование для отладки
+if DEBUG:
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    }
