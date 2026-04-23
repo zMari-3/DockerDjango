@@ -5,10 +5,9 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure--s6!q77vj2y=g*7%%gtgrmf&24ey#$#721=2o5-x@#(tk%z@@(')
 
-# SECURITY WARNING: don't run with debug turned on in production!
+
 DEBUG = True
 
 # ALLOWED_HOSTS - поддержка Railway
@@ -23,7 +22,7 @@ ALLOWED_HOSTS = [
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 
-# ========== ВОТ ЧТО ДОБАВЛЕНО ДЛЯ ИСПРАВЛЕНИЯ CSRF ==========
+
 CSRF_TRUSTED_ORIGINS = [
     'https://*.railway.app',
     'https://*.up.railway.app',
@@ -33,7 +32,7 @@ CSRF_TRUSTED_ORIGINS = [
 # Для работы за прокси
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# ============================================================
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -115,7 +114,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# Добавлено хранилище "default"
 STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
